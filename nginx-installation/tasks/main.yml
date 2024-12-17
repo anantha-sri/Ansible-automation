@@ -1,0 +1,29 @@
+---
+- name: Update system packages for Debian-based systems
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Update system packages for RedHat-based systems
+  ansible.builtin.yum:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install Nginx web server (Debian-based)
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install Nginx web server (RedHat-based)
+  ansible.builtin.yum:
+    name: nginx
+    state: present
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Ensure Nginx is running and enabled
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: yes
+
