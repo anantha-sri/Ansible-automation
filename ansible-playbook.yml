@@ -1,7 +1,0 @@
----
-- hosts: localhost
-  become: true
-  roles:
-    - nginx-installation
-    - mongodb-installation
-    - node_versionmanager-installation
