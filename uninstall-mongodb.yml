@@ -1,0 +1,33 @@
+---
+- name: Uninstall MongoDB from Ubuntu
+  hosts: localhost
+  become: true # Ensures tasks run with sudo privileges
+  tasks:
+  - name: Stop the MongoDB service
+    ansible.builtin.service:
+      name: mongod
+      state: stopped
+      enabled: no
+
+  - name: Remove MongoDB packages
+    ansible.builtin.apt:
+      name: mongodb-org
+      state: absent
+      purge: yes
+
+  - name: Remove MongoDB configuration and data directories
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+    - /var/lib/mongodb
+    - /var/log/mongodb
+
+  - name: Remove MongoDB repository
+    ansible.builtin.apt_repository:
+      repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/6.0 multiverse"
+      state: absent
+
+  - name: Autoremove unused packages
+    ansible.builtin.apt:
+      autoremove: yes
