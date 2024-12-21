@@ -1,0 +1,54 @@
+---
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Update the apt package index (Debian-based)
+      ansible.builtin.apt:
+        update_cache: yes
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: Update the yum package index (RedHat-based)
+      ansible.builtin.yum:
+        update_cache: yes
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: Stop the Nginx service (Debian-based)
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+        enabled: no  # Ensure the service does not start on boot
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: Stop the Nginx service (RedHat-based)
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+        enabled: no  # Ensure the service does not start on boot
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: Remove Nginx and its dependencies (Debian-based)
+      ansible.builtin.apt:
+        name: nginx
+        state: absent
+        purge: yes  # Completely remove configuration files and dependencies
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: Remove Nginx and its dependencies (RedHat-based)
+      ansible.builtin.yum:
+        name: nginx
+        state: absent
+        remove: yes  # Completely remove the package
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: Autoremove unused packages (Debian-based)
+      ansible.builtin.apt:
+        autoremove: yes
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: Autoremove unused packages (RedHat-based)
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - nginx
+      when: ansible_facts['os_family'] == 'RedHat'
